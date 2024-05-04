@@ -67,7 +67,10 @@ export default class GraphPlotPlugin extends Plugin {
 			name: 'Generate Graph',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 
-				const input = editor.getSelection();
+				let input = editor.getSelection();
+				
+				// remove $ in case it was accidentally copied 
+				input = input.replace(/\$/g, '')
 				console.log(input)
 
 				this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
@@ -134,6 +137,8 @@ class SampleSettingTab extends PluginSettingTab {
 		const {containerEl} = this;
 
 		containerEl.empty();
+
+		// TODO: settings for changing domains, axes labels
 
 		// new Setting(containerEl)
 		// 	.setName('Setting #1')
