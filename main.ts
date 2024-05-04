@@ -16,10 +16,12 @@ const VIEW_TYPE = "graph-view";
 class GraphView extends ItemView {
 	root: Root | null = null;
 	functionInput: string
+	type: string
 
-	constructor(leaf: WorkspaceLeaf, functionInput: string) {
+	constructor(leaf: WorkspaceLeaf, functionInput: string, type: string) {
 		super(leaf);
 		this.functionInput = functionInput
+		this.type = type
 	}
   
 	getViewType(): string {
@@ -36,14 +38,14 @@ class GraphView extends ItemView {
   
 	async onOpen() {
 		this.root = createRoot(this.containerEl.children[1]);
-		const domNode = React.createElement(GraphWrapper, { functionInput: this.functionInput })
+		const domNode = React.createElement(GraphWrapper, { functionInput: this.functionInput, type: this.type })
 
 		this.root.render(domNode)
 	}
 
 	updateView() {
 		console.log("Updating Root")
-		const domNode = React.createElement(GraphWrapper, { functionInput: this.functionInput })
+		const domNode = React.createElement(GraphWrapper, { functionInput: this.functionInput, type: this.type })
 
 		if (this.root) this.root.render(domNode)
 	}
@@ -59,7 +61,7 @@ export default class GraphPlotPlugin extends Plugin {
 		// Registers the view 
 		this.registerView(
 			VIEW_TYPE,
-			(leaf) => new GraphView(leaf, "")
+			(leaf) => new GraphView(leaf, "", "")
 		);
 		
 		this.addCommand({
@@ -77,12 +79,40 @@ export default class GraphPlotPlugin extends Plugin {
 					if (leaf.view instanceof GraphView) {
 					  // Access your view instance.
 						leaf.view.functionInput = input
+						leaf.view.type = "GRAPH"
 						leaf.view.updateView()
 						leaf.view.load()
 					}
 				  });
 		
 				new Notice('Generating Graph');
+				
+				this.activateView()
+			}
+		});
+
+		this.addCommand({
+			id: 'draw-vector',
+			name: 'Draw Vector',
+			editorCallback: (editor: Editor, view: MarkdownView) => {
+
+				let input = editor.getSelection();
+				
+				// remove $ in case it was accidentally copied 
+				input = input.replace(/\$/g, '')
+				console.log(input)
+
+				this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
+					if (leaf.view instanceof GraphView) {
+					  // Access your view instance.
+						leaf.view.functionInput = input
+						leaf.view.type = "VECTOR"
+						leaf.view.updateView()
+						leaf.view.load()
+					}
+				  });
+		
+				new Notice('Drawing Vectors...');
 				
 				this.activateView()
 			}

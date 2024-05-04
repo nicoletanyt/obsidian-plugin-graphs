@@ -5,14 +5,15 @@ import functionPlot from "function-plot";
 interface GraphProps {
 	input: string;
 	vectorArray?: number[];
+    type: string;
 }
 
-function Graph({ input, vectorArray }: GraphProps) {
+function Graph({ input, vectorArray, type }: GraphProps) {
 
 	useEffect(() => {
 		console.log("Input: " + input);
 
-		if (input.includes("vec")) {
+		if (type == "VECTOR") {
             if (vectorArray && vectorArray.length > 0) {
                 functionPlot({
                     target: "#graph",
@@ -28,7 +29,7 @@ function Graph({ input, vectorArray }: GraphProps) {
                     ],
                 });
             }
-		} else if (input.includes("x")){
+		} else if (type == "GRAPH"){
 			functionPlot({
 				target: "#graph",
 				width: 800,
@@ -55,44 +56,32 @@ function Graph({ input, vectorArray }: GraphProps) {
 
 interface GraphWrapperProps {
 	functionInput: string;
+    type: string;
 }
 
-enum GraphType {
-	Vector = "VECTOR",
-	Graph = "GRAPH",
-    NULL = "NULL"
-}
-
-const GraphWrapper: React.FC<GraphWrapperProps> = ({ functionInput }) => {
+const GraphWrapper: React.FC<GraphWrapperProps> = ({ functionInput, type }) => {
 	const [vector, setVector] = useState<number[]>([]);
-	const [type, setType] = useState<GraphType>(GraphType.NULL);
 
 	useEffect(() => {
-		console.log("Function Input: " + functionInput);
+        console.log("Function Inputs: " + functionInput);
+    
+        if (type == "VECTOR") {
+            // TODO: ERROR HANDLING 
 
-        if (functionInput.includes("vec")) {
-            setType(GraphType.Vector);
-        } else if (functionInput == "") {
-            setType(GraphType.NULL)
-        } else {
-            setType(GraphType.Graph);
-        }
+            // EXAMPLE: \vec{AB} = \begin{pmatrix} 1 \\ 2 \end{pmatrix}
+            let column = functionInput
+                .split("\\begin{pmatrix}")[1]
+                .replace("\\end{pmatrix}", "")
+                .replace(/\s+/g, "");
+            // COLUMN SHOULD BE SOMETHING LIKE "1 \\ 2 \"
+            let rawVector = column.split("\\");
+            let vectorParsed = [];
 
-		if (functionInput.includes("vec")) {
-			// EXAMPLE: \vec{AB} = \begin{pmatrix} 1 \\ 2 \end{pmatrix}
-			let column = functionInput
-				.split("\\begin{pmatrix}")[1]
-				.replace("\\end{pmatrix}", "")
-				.replace(/\s+/g, "");
-			// COLUMN SHOULD BE SOMETHING LIKE "1 \\ 2 \"
-			let rawVector = column.split("\\");
-			let vectorParsed = [];
-
-			for (let i = 0; i < rawVector.length; ++i) {
-				if (rawVector[i] != "") vectorParsed.push(Number(rawVector[i]));
-			}
-			setVector(vectorParsed);
-		} 
+            for (let i = 0; i < rawVector.length; ++i) {
+                if (rawVector[i] != "") vectorParsed.push(Number(rawVector[i]));
+            }
+            setVector(vectorParsed);
+        } 
 
 	}, [functionInput]);
 
@@ -114,11 +103,11 @@ const GraphWrapper: React.FC<GraphWrapperProps> = ({ functionInput }) => {
 		<div>
 			<h1>Graph of {functionInput}</h1>
 			{type == "GRAPH" ? (
-				<Graph input={functionInput}/>
+                <Graph input={functionInput} type={type} />
 			) : type == "VECTOR" && vector.length > 0 ? (
-				<Graph input={functionInput} vectorArray={vector}/>
+				<Graph input={functionInput} vectorArray={vector} type={type}/>
 			) : (
-				<p>Loading...</p>
+				<></>
 			)}
 			{type == "GRAPH" ? (
 				<>
