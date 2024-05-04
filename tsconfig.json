@@ -4,12 +4,12 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "module": "ESNext",
+    "jsx": "react",
     "target": "ES6",
     "allowJs": true,
     "noImplicitAny": true,
     "moduleResolution": "node",
     "importHelpers": true,
-    "isolatedModules": true,
 	"strictNullChecks": true,
     "lib": [
       "DOM",
@@ -19,6 +19,6 @@
     ]
   },
   "include": [
-    "**/*.ts"
+    "**/*.ts", "**/*.tsx"
   ]
 }
