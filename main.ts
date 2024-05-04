@@ -15,10 +15,10 @@ const VIEW_TYPE = "graph-view";
 
 class GraphView extends ItemView {
 	root: Root | null = null;
-	functionInput: string
+	functionInput: string[]
 	type: string
 
-	constructor(leaf: WorkspaceLeaf, functionInput: string, type: string) {
+	constructor(leaf: WorkspaceLeaf, functionInput: [string], type: string) {
 		super(leaf);
 		this.functionInput = functionInput
 		this.type = type
@@ -61,7 +61,7 @@ export default class GraphPlotPlugin extends Plugin {
 		// Registers the view 
 		this.registerView(
 			VIEW_TYPE,
-			(leaf) => new GraphView(leaf, "", "")
+			(leaf) => new GraphView(leaf, [""], "")
 		);
 		
 		this.addCommand({
@@ -75,10 +75,13 @@ export default class GraphPlotPlugin extends Plugin {
 				input = input.replace(/\$/g, '')
 				console.log(input)
 
+				const lines = input.split("\\newline")
+				console.log(lines)
+
 				this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
 					if (leaf.view instanceof GraphView) {
 					  // Access your view instance.
-						leaf.view.functionInput = input
+						leaf.view.functionInput = lines
 						leaf.view.type = "GRAPH"
 						leaf.view.updateView()
 						leaf.view.load()
@@ -102,19 +105,28 @@ export default class GraphPlotPlugin extends Plugin {
 				input = input.replace(/\$/g, '')
 				console.log(input)
 
-				this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
-					if (leaf.view instanceof GraphView) {
-					  // Access your view instance.
-						leaf.view.functionInput = input
-						leaf.view.type = "VECTOR"
-						leaf.view.updateView()
-						leaf.view.load()
-					}
-				  });
-		
-				new Notice('Drawing Vectors...');
-				
-				this.activateView()
+				const lines = input.split("\\newline")
+				console.log(lines)
+
+				// error handling 
+				if (input.contains("\\vec")) {
+					this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
+						if (leaf.view instanceof GraphView) {
+						  // Access your view instance.
+							leaf.view.functionInput = lines
+							leaf.view.type = "VECTOR"
+							leaf.view.updateView()
+							leaf.view.load()
+						}
+					  });
+			
+					new Notice('Drawing Vectors...');
+					
+					this.activateView()
+				} else {
+					new Notice("Invalid Syntax")
+				}
+
 			}
 		});
 
