@@ -5,6 +5,7 @@ import functionPlot, {
 	FunctionPlotOptions,
 } from "function-plot";
 import { Notice, loadMathJax, renderMath, finishRenderMath } from "obsidian";
+import { GraphPlotPluginSettings } from "main";
 
 loadMathJax();
 
@@ -12,6 +13,7 @@ interface GraphProps {
 	input: string[];
 	vectorArray?: number[][];
 	type: string;
+	settings: GraphPlotPluginSettings
 }
 
 const COLORS = [
@@ -26,7 +28,7 @@ const COLORS = [
 	"gray",
 ];
 
-function Graph({ input, vectorArray, type }: GraphProps) {
+function Graph({ input, vectorArray, type, settings }: GraphProps) {
 	useEffect(() => {
 		console.log("Input: " + input);
 
@@ -49,11 +51,14 @@ function Graph({ input, vectorArray, type }: GraphProps) {
 				try {
 					functionPlot({
 						target: "#graph",
-						xAxis: { domain: [-3, 8] },
-						grid: true,
-						width: 800,
-						height: 550,
+						xAxis: { label: settings.xLabel },
+						yAxis: { label: settings.yLabel },
+						grid: settings.grid,
+						width: Number(settings.width),
+						height: Number(settings.height),
 						data: parsedData as FunctionPlotDatum[],
+						disableZoom: settings.disableZoom,
+						title: settings.title
 					});
 				} catch (error) {
 					console.log(error);
@@ -70,11 +75,14 @@ function Graph({ input, vectorArray, type }: GraphProps) {
 
 				functionPlot({
 					target: "#graph",
-					width: 800,
-					height: 550,
-					yAxis: { domain: [-1, 9] },
-					grid: true,
+					width: Number(settings.width),
+					height: Number(settings.height),
+					xAxis: { label: settings.xLabel },
+					yAxis: { label: settings.yLabel },
+					grid: settings.grid,
 					data: parsedData,
+					disableZoom: settings.disableZoom,
+					title: settings.title
 				});
 			} catch (error) {
 				console.log(error);
@@ -114,9 +122,10 @@ function MathBlock({ functionInput }: MathBlockProps) {
 interface GraphWrapperProps {
 	functionInput: string[];
 	type: string;
+	settings: GraphPlotPluginSettings
 }
 
-const GraphWrapper: React.FC<GraphWrapperProps> = ({ functionInput, type }) => {
+const GraphWrapper: React.FC<GraphWrapperProps> = ({ functionInput, type, settings }) => {
 	const [vector, setVector] = useState<number[][]>([]);
 
 	function parseVector(func: string) {
@@ -216,11 +225,14 @@ const GraphWrapper: React.FC<GraphWrapperProps> = ({ functionInput, type }) => {
 
 			functionPlot({
 				target: "#graph",
-				xAxis: { domain: [-3, 8] },
-				grid: true,
-				width: 800,
-				height: 550,
+				grid: settings.grid,
+				width: Number(settings.width),
+				height: Number(settings.height),
+				xAxis: { label: settings.xLabel },
+				yAxis: { label: settings.yLabel },
 				data: data as FunctionPlotDatum[],
+				disableZoom: settings.disableZoom,
+				title: settings.title
 			});
 		}
 	}
@@ -233,9 +245,9 @@ const GraphWrapper: React.FC<GraphWrapperProps> = ({ functionInput, type }) => {
 			</h1>
 
 			{type == "GRAPH" ? (
-				<Graph input={functionInput} type={type} />
+				<Graph input={functionInput} type={type} settings={settings} />
 			) : type == "VECTOR" && vector.length > 0 ? (
-				<Graph input={functionInput} vectorArray={vector} type={type} />
+				<Graph input={functionInput} vectorArray={vector} type={type} settings={settings} />
 			) : (
 				<></>
 			)}

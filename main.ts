@@ -3,12 +3,24 @@ import * as React from 'react';
 import GraphWrapper from './GraphViews';
 import { Root, createRoot } from "react-dom/client";
 
-interface GraphPlotPluginSettings {
-	mySetting: string;
+export interface GraphPlotPluginSettings {
+	xLabel: string,
+	yLabel: string,
+	disableZoom: boolean,
+	grid: boolean,
+	width: string, // typecast to number later
+	height: string, // typecast to number later
+	title: string,
 }
 
 const DEFAULT_SETTINGS: GraphPlotPluginSettings = {
-	mySetting: 'default'
+	xLabel: "",
+	yLabel: "",
+	disableZoom: false,
+	grid: true,
+	width: "800",
+	height: "560", 
+	title: "",
 }
 
 const VIEW_TYPE = "graph-view";
@@ -17,11 +29,13 @@ class GraphView extends ItemView {
 	root: Root | null = null;
 	functionInput: string[]
 	type: string
+	settings: GraphPlotPluginSettings
 
-	constructor(leaf: WorkspaceLeaf, functionInput: [string], type: string) {
+	constructor(leaf: WorkspaceLeaf, functionInput: [string], type: string, settings: GraphPlotPluginSettings) {
 		super(leaf);
 		this.functionInput = functionInput
 		this.type = type
+		this.settings = settings
 	}
   
 	getViewType(): string {
@@ -38,14 +52,14 @@ class GraphView extends ItemView {
   
 	async onOpen() {
 		this.root = createRoot(this.containerEl.children[1]);
-		const domNode = React.createElement(GraphWrapper, { functionInput: this.functionInput, type: this.type })
+		const domNode = React.createElement(GraphWrapper, { functionInput: this.functionInput, type: this.type, settings: this.settings })
 
 		this.root.render(domNode)
 	}
 
 	updateView() {
 		console.log("Updating Root")
-		const domNode = React.createElement(GraphWrapper, { functionInput: this.functionInput, type: this.type })
+		const domNode = React.createElement(GraphWrapper, { functionInput: this.functionInput, type: this.type, settings: this.settings })
 
 		if (this.root) this.root.render(domNode)
 	}
@@ -61,7 +75,7 @@ export default class GraphPlotPlugin extends Plugin {
 		// Registers the view 
 		this.registerView(
 			VIEW_TYPE,
-			(leaf) => new GraphView(leaf, [""], "")
+			(leaf) => new GraphView(leaf, [""], "", this.settings)
 		);
 		
 		this.addCommand({
@@ -180,17 +194,81 @@ class SampleSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		// TODO: settings for changing domains, axes labels
+		new Setting(containerEl)
+			.setName("X Axis")
+			.setDesc("Label for X Axis")
+			.addText(text => text
+				.setPlaceholder('Enter the x-axis label')
+				.setValue(this.plugin.settings.xLabel)
+				.onChange(async (value) => {
+					this.plugin.settings.xLabel = value;
+					await this.plugin.saveSettings();
+				}));
+		
+		new Setting(containerEl)
+			.setName("Y Axis")
+			.setDesc("Label for Y Axis")
+			.addText(text => text
+				.setPlaceholder("Enter the y-axis label")
+				.setValue(this.plugin.settings.yLabel)
+				.onChange(async (value) => {
+					this.plugin.settings.yLabel = value;
+					await this.plugin.saveSettings();
+				}));
+		
+		new Setting(containerEl)
+			.setName("Disable Zoom")
+			.setDesc("Enable to disable translation/scaling on the graph")
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.disableZoom)
+				.onChange(async (value) => {
+					this.plugin.settings.disableZoom = value;
+					await this.plugin.saveSettings();
+				})
+			)
+		
+		new Setting(containerEl)
+			.setName("Grid")
+			.setDesc("Enable to show the grid.")
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.grid)
+				.onChange(async (value) => {
+					this.plugin.settings.grid = value;
+					await this.plugin.saveSettings();
+				})
+			)
+		
+		new Setting(containerEl)
+			.setName("Width")
+			.setDesc("Set the width of the graph.")
+			.addText(text => text
+				.setValue(this.plugin.settings.width)
+				.onChange(async (value) => {
+					this.plugin.settings.width = value;
+					await this.plugin.saveSettings();
+				})
+			)
+		
+		new Setting(containerEl)
+			.setName("Height")
+			.setDesc("Set the height of the graph.")
+			.addText(text => text
+				.setValue(this.plugin.settings.height)
+				.onChange(async (value) => {
+					this.plugin.settings.height = value;
+					await this.plugin.saveSettings();
+				})
+			)
 
-		// new Setting(containerEl)
-		// 	.setName('Setting #1')
-		// 	.setDesc('It\'s a secret')
-		// 	.addText(text => text
-		// 		.setPlaceholder('Enter your secret')
-		// 		.setValue(this.plugin.settings.mySetting)
-		// 		.onChange(async (value) => {
-		// 			this.plugin.settings.mySetting = value;
-		// 			await this.plugin.saveSettings();
-		// 		}));
+		new Setting(containerEl)
+			.setName("Title")
+			.setDesc("Set the title of the graph.")
+			.addText(text => text
+				.setValue(this.plugin.settings.title)
+				.onChange(async (value) => {
+					this.plugin.settings.title = value;
+					await this.plugin.saveSettings();
+				})
+			)
 	}
 }
