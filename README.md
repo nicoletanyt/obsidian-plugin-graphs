@@ -11,7 +11,7 @@ This plugin integrates [FunctionPlot](https://mauriciopoppe.github.io/function-p
 3. A new page will be opened with the function to plot, the graph, a function to calculate the value of y of the function given its x value, and colour coding of the graphs
 
 - Demo: 
-![[graph_demo.png]]
+![Demo of graphs](graph_demo.png)
 
 ## Drawing Vectors
 
@@ -23,10 +23,10 @@ This plugin integrates [FunctionPlot](https://mauriciopoppe.github.io/function-p
 3. A new page will be opened with the equation, the graph, a function to add two vectors and generate the resultant vector, and colour coding of the vectors
 
 - Demo: 
-![[vector_demo.png]]
+![Demo of vectors](vector_demo.png)
 
 - Demo of addition vector:
-![[addition_vector_demo.png]]
+![Demo of addition vectors](addition_vector_demo.png)
 
 
 ## Multiple Graphs/Vectors
