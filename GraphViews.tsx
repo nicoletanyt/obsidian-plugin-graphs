@@ -30,15 +30,10 @@ const COLORS = [
 
 function Graph({ input, vectorArray, type, settings }: GraphProps) {
 	useEffect(() => {
-		console.log("Input: " + input);
-
 		if (type == "VECTOR") {
 			if (vectorArray && vectorArray.length > 0) {
-				console.log(vectorArray);
 				let parsedData = [];
 				for (let i = 0; i < vectorArray.length; ++i) {
-					console.log("Vector Arrays: ");
-					console.log(vectorArray[i]);
 					parsedData.push({
 						vector: vectorArray[i],
 						offset: [0, 0],
@@ -47,7 +42,6 @@ function Graph({ input, vectorArray, type, settings }: GraphProps) {
 						color: COLORS[i],
 					});
 				}
-				console.log(parsedData);
 				try {
 					functionPlot({
 						target: "#graph",
@@ -61,7 +55,6 @@ function Graph({ input, vectorArray, type, settings }: GraphProps) {
 						title: settings.title
 					});
 				} catch (error) {
-					console.log(error);
 					// Syntax Error
 					new Notice("ERROR: Invalid Syntax");
 				}
@@ -85,13 +78,10 @@ function Graph({ input, vectorArray, type, settings }: GraphProps) {
 					title: settings.title
 				});
 			} catch (error) {
-				console.log(error);
 				// Syntax Error
 				new Notice("ERROR: Invalid Syntax");
 			}
-		} else {
-			console.log("Undefined Type");
-		}
+		} 
 	}, [input]);
 
 	return <div id="graph"></div>;
@@ -112,7 +102,6 @@ function MathBlock({ functionInput }: MathBlockProps) {
 		const element = renderMath(equation, true);
 		containerRef.current.appendChild(element);
 		finishRenderMath();
-		console.log("Finish rendering");
 	  }
 	}, [functionInput]);
 	
@@ -144,14 +133,10 @@ const GraphWrapper: React.FC<GraphWrapperProps> = ({ functionInput, type, settin
 	}
 
 	useEffect(() => {
-		console.log("Function Inputs: " + functionInput);
-
 		if (type == "VECTOR") {
 			let tempVectors = [];
 			for (let i = 0; i < functionInput.length; ++i) {
 				// EXAMPLE: \vec{AB} = \begin{pmatrix} 1 \\ 2 \end{pmatrix}
-				console.log(i + "\t" + functionInput[i]);
-
 				tempVectors.push(parseVector(functionInput[i]));
 			}
 			setVector(tempVectors);
@@ -165,7 +150,6 @@ const GraphWrapper: React.FC<GraphWrapperProps> = ({ functionInput, type, settin
 			document.getElementById("pick-functions") as HTMLInputElement
 		).value;
 
-		console.log(selectInput);
 		const datum = {
 			fn: selectInput.trim(),
 		};
@@ -190,7 +174,6 @@ const GraphWrapper: React.FC<GraphWrapperProps> = ({ functionInput, type, settin
 
 		if (result[0] == 0 && result[1] == 0) {
 			// zero vector
-			console.log("Please select two different vectors.");
 			new Notice("Please select two different vectors. ");
 		} else {
 			// assume they have a common point
@@ -204,7 +187,6 @@ const GraphWrapper: React.FC<GraphWrapperProps> = ({ functionInput, type, settin
 					")";
 
 			for (let i = 0; i < functionInput.length; ++i) {
-				console.log(parseVector(functionInput[i]));
 				data.push({
 					vector: parseVector(functionInput[i]),
 					offset: [0, 0],
@@ -221,7 +203,6 @@ const GraphWrapper: React.FC<GraphWrapperProps> = ({ functionInput, type, settin
 				fnType: "vector",
 				color: COLORS[functionInput.length],
 			});
-			console.log(data);
 
 			functionPlot({
 				target: "#graph",

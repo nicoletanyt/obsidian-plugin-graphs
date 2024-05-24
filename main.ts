@@ -58,7 +58,6 @@ class GraphView extends ItemView {
 	}
 
 	updateView() {
-		console.log("Updating Root")
 		const domNode = React.createElement(GraphWrapper, { functionInput: this.functionInput, type: this.type, settings: this.settings })
 
 		if (this.root) this.root.render(domNode)
@@ -87,10 +86,8 @@ export default class GraphPlotPlugin extends Plugin {
 				
 				// remove $ in case it was accidentally copied 
 				input = input.replace(/\$/g, '')
-				console.log(input)
 
 				const lines = input.split("\\newline")
-				console.log(lines)
 
 				this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
 					if (leaf.view instanceof GraphView) {
@@ -117,10 +114,8 @@ export default class GraphPlotPlugin extends Plugin {
 				
 				// remove $ in case it was accidentally copied 
 				input = input.replace(/\$/g, '')
-				console.log(input)
 
 				const lines = input.split("\\newline")
-				console.log(lines)
 
 				// error handling 
 				if (input.contains("\\vec")) {
@@ -145,7 +140,7 @@ export default class GraphPlotPlugin extends Plugin {
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(new SettingTab(this.app, this));
 
 	}
 
@@ -181,7 +176,7 @@ export default class GraphPlotPlugin extends Plugin {
 	}
 }
 
-class SampleSettingTab extends PluginSettingTab {
+class SettingTab extends PluginSettingTab {
 	plugin: GraphPlotPlugin;
 
 	constructor(app: App, plugin: GraphPlotPlugin) {
