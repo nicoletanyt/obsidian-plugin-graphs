@@ -56,7 +56,7 @@ function Graph({ input, vectorArray, type, settings }: GraphProps) {
 					});
 				} catch (error) {
 					// Syntax Error
-					new Notice("ERROR: Invalid Syntax");
+					new Notice("ERROR: Invalid syntax");
 				}
 			}
 		} else if (type == "GRAPH") {
@@ -79,7 +79,7 @@ function Graph({ input, vectorArray, type, settings }: GraphProps) {
 				});
 			} catch (error) {
 				// Syntax Error
-				new Notice("ERROR: Invalid Syntax");
+				new Notice("ERROR: Invalid syntax");
 			}
 		} 
 	}, [input]);
@@ -180,7 +180,7 @@ const GraphWrapper: React.FC<GraphWrapperProps> = ({ functionInput, type, settin
 			const resultText = document.getElementById("result-vector");
 			if (resultText)
 				resultText.innerText =
-					"The Resultant Vector is: " +
+					"The resultant vector is: " +
 					result +
 					". (" +
 					COLORS[functionInput.length] +
@@ -217,8 +217,7 @@ const GraphWrapper: React.FC<GraphWrapperProps> = ({ functionInput, type, settin
 			});
 		}
 	}
-
-	return functionInput ? (
+	return functionInput.length > 0 && functionInput[0] != "" ? (
 		<div>
 			<h1>			
 				Graph of

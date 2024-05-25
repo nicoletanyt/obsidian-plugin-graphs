@@ -43,7 +43,7 @@ class GraphView extends ItemView {
 	}
   
 	getDisplayText(): string {
-	  return "Graph View";
+	  return "Graph view";
 	}
   
 	getIcon(): string {
@@ -68,6 +68,53 @@ class GraphView extends ItemView {
 export default class GraphPlotPlugin extends Plugin {
 	settings: GraphPlotPluginSettings;
 
+	async generateGraph(input: string) {
+		await this.activateView()
+				
+		// remove $ in case it was accidentally copied 
+		input = input.replace(/\$/g, '')
+
+		const lines = input.split("\\newline")
+
+		this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
+			if (leaf.view instanceof GraphView) {
+				// Access your view instance.
+				leaf.view.functionInput = lines
+				leaf.view.type = "GRAPH"
+				leaf.view.updateView()
+				leaf.view.load()
+			}
+			});
+	}
+
+	async generateVectors(input: string) {
+		await this.activateView()
+
+		// remove $ in case it was accidentally copied 
+		input = input.replace(/\$/g, '')
+
+		const lines = input.split("\\newline")
+
+		// error handling 
+		if (input.contains("\\vec")) {
+			this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
+				if (leaf.view instanceof GraphView) {
+				// Access your view instance.
+					leaf.view.functionInput = lines
+					leaf.view.type = "VECTOR"
+					leaf.view.updateView()
+					leaf.view.load()
+				}
+			});
+
+			new Notice('Drawing vectors...');
+			
+			this.activateView()
+		} else {
+			new Notice("Invalid syntax")
+		}
+	}
+
 	async onload() {
 		await this.loadSettings();
 
@@ -79,63 +126,18 @@ export default class GraphPlotPlugin extends Plugin {
 		
 		this.addCommand({
 			id: 'generate-graph',
-			name: 'Generate Graph',
+			name: 'Generate graph',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
-
-				let input = editor.getSelection();
-				
-				// remove $ in case it was accidentally copied 
-				input = input.replace(/\$/g, '')
-
-				const lines = input.split("\\newline")
-
-				this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
-					if (leaf.view instanceof GraphView) {
-					  // Access your view instance.
-						leaf.view.functionInput = lines
-						leaf.view.type = "GRAPH"
-						leaf.view.updateView()
-						leaf.view.load()
-					}
-				  });
-		
-				new Notice('Generating Graph');
-				
-				this.activateView()
+				new Notice('Generating graph');
+				this.generateGraph(editor.getSelection());
 			}
 		});
 
 		this.addCommand({
 			id: 'draw-vector',
-			name: 'Draw Vector',
+			name: 'Draw vector',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
-
-				let input = editor.getSelection();
-				
-				// remove $ in case it was accidentally copied 
-				input = input.replace(/\$/g, '')
-
-				const lines = input.split("\\newline")
-
-				// error handling 
-				if (input.contains("\\vec")) {
-					this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
-						if (leaf.view instanceof GraphView) {
-						  // Access your view instance.
-							leaf.view.functionInput = lines
-							leaf.view.type = "VECTOR"
-							leaf.view.updateView()
-							leaf.view.load()
-						}
-					  });
-			
-					new Notice('Drawing Vectors...');
-					
-					this.activateView()
-				} else {
-					new Notice("Invalid Syntax")
-				}
-
+				this.generateVectors(editor.getSelection())
 			}
 		});
 
@@ -155,8 +157,8 @@ export default class GraphPlotPlugin extends Plugin {
 
 		} else {
 		  // Our view could not be found in the workspace, create a new leaf in the right sidebar for it
-		  leaf = workspace.getMostRecentLeaf()
-		  if (leaf != null) await leaf.setViewState({ type: VIEW_TYPE, active: true });
+		  leaf = workspace.getLeaf()
+		  await leaf.setViewState({ type: VIEW_TYPE, active: false });
 		}
 	
 		// Reveal the leaf in case it is in a collapsed sidebar
@@ -190,8 +192,8 @@ class SettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("X Axis")
-			.setDesc("Label for X Axis")
+			.setName("X axis")
+			.setDesc("Label for x-axis")
 			.addText(text => text
 				.setPlaceholder('Enter the x-axis label')
 				.setValue(this.plugin.settings.xLabel)
@@ -201,8 +203,8 @@ class SettingTab extends PluginSettingTab {
 				}));
 		
 		new Setting(containerEl)
-			.setName("Y Axis")
-			.setDesc("Label for Y Axis")
+			.setName("Y axis")
+			.setDesc("Label for y-axis")
 			.addText(text => text
 				.setPlaceholder("Enter the y-axis label")
 				.setValue(this.plugin.settings.yLabel)
@@ -212,7 +214,7 @@ class SettingTab extends PluginSettingTab {
 				}));
 		
 		new Setting(containerEl)
-			.setName("Disable Zoom")
+			.setName("Disable zoom")
 			.setDesc("Enable to disable translation/scaling on the graph")
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.disableZoom)
